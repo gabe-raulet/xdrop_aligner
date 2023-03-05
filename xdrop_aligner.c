@@ -27,7 +27,7 @@ int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seq
         xalign->seqQ[i] = NT_LOOKUP_CODE(seqQ[i]);
     }
 
-    for (i = 0; i < xalign->lenQ; ++i)
+    for (i = 0; i < xalign->lenT; ++i)
     {
         xalign->seqT[i] = NT_LOOKUP_CODE(seqT[i]);
     }
