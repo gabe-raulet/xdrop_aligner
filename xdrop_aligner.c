@@ -83,9 +83,9 @@ int xseed_check_valid(xseed_t const xseed, xdrop_aligner_t const xalign)
      * for both the query and the target.
      */
 
-    int seedlen = xseed.endQ - xseed.begQ;
+    int seedlen = xseed_seedlen(xseed);
 
-    if (seedlen != xseed.endT - xseed.begT)
+    if (seedlen == -1)
         return -1;
 
     /*
@@ -100,6 +100,14 @@ int xseed_check_valid(xseed_t const xseed, xdrop_aligner_t const xalign)
     }
 
     return 0;
+}
+
+int xseed_seedlen(xseed_t const xseed)
+{
+    int seedlenQ = xseed.endQ - xseed.begQ;
+    int seedlenT = xseed.endT - xseed.begT;
+
+    return seedlenQ != seedlenT? -1 : seedlenQ;
 }
 
 /* typedef struct          */

@@ -27,6 +27,7 @@ typedef struct
 
 int xseed_set(xseed_t *xseed, int begQ, int begT, int seedlen);
 int xseed_check_valid(xseed_t const xseed, xdrop_aligner_t const xalign);
+int xseed_seedlen(xseed_t const xseed);
 
 /*
  * scoring structure and functions
