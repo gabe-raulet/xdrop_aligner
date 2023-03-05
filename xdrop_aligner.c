@@ -1,4 +1,7 @@
 #include "xdrop_aligner.h"
+#include "ntlookup.h"
+#include <stdlib.h>
+#include <string.h>
 
 /* typedef struct           */
 /* {                        */
@@ -6,7 +9,32 @@
 /*     int lenQ, lenT;      */
 /* } xdrop_aligner_t;       */
 
-int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seqT);
+int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seqT)
+{
+    if (!xalign || !seqQ || !seqT)
+        return -1;
+
+    xalign->lenQ = strlen(seqQ);
+    xalign->lenT = strlen(seqT);
+
+    xalign->seqQ = malloc(xalign->lenQ);
+    xalign->seqT = malloc(xalign->lenT);
+
+    int i;
+
+    for (i = 0; i < xalign->lenQ; ++i)
+    {
+        xalign->seqQ[i] = NT_LOOKUP_CODE(seqQ[i]);
+    }
+
+    for (i = 0; i < xalign->lenQ; ++i)
+    {
+        xalign->seqT[i] = NT_LOOKUP_CODE(seqT[i]);
+    }
+
+    return 0;
+}
+
 int xdrop_aligner_clear(xdrop_aligner_t *xalign);
 
 /* typedef struct      */
