@@ -26,7 +26,17 @@ int xseed_check_valid(xseed_t const xseed, xdrop_aligner_t const xalign);
 /*     int dropoff;        */
 /* } xdrop_score_scheme_t; */
 
-int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int gap, int dropoff);
+int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int gap, int dropoff)
+{
+    if (!scheme) return -1;
+
+    scheme->mat = mat;
+    scheme->mis = mis;
+    scheme->gap = gap;
+    scheme->dropoff = dropoff;
+
+    return 0;
+}
 
 int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xseed_t const xseed, xdrop_score_scheme const scheme, int *endQ_ext, int *endT_ext);
 int xdrop_seed_and_extend_r(xdrop_aligner_t const xalign, xseed_t const xseed, xdrop_score_scheme const scheme, int *endQ_ext, int *endT_ext);
