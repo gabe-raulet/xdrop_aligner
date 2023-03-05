@@ -132,4 +132,29 @@ int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int g
 
 int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, int begQ, int begT, int *begQ_ext, int *begT_ext);
 int xdrop_seed_and_extend_r(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, int endQ, int endT, int *endQ_ext, int *endT_ext);
-int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdrop_score_scheme_t const scheme, xseed_t *result);
+
+int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdrop_score_scheme_t const scheme, xseed_t *result)
+{
+    int seedlen = xseed_seedlen(xseed);
+
+    if (seedlen == -1)
+        return -1;
+
+    int begQ, begT, begQ_ext, begT_ext, lscore;
+
+    begQ = xseed.begQ;
+    begT = xseed.begT;
+
+    lscore = xdrop_seed_and_extend_l(xalign, scheme, begQ, begT, &begQ_ext, &begT_ext);
+
+    int endQ, endT, endQ_ext, endT_ext, rscore;
+
+    endQ = xseed.endQ;
+    endT = xseed.endT;
+
+    rscore = xdrop_seed_and_extend_r(xalign, scheme, endQ, endT, &endQ_ext, &endT_ext);
+
+    int score = lscore + rscore + scheme.mat * seedlen;
+
+    return score;
+}
