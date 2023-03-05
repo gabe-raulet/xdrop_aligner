@@ -53,7 +53,18 @@ int xdrop_aligner_clear(xdrop_aligner_t *xalign)
 /*     int begT, endT; */
 /* } xseed_t;          */
 
-int xseed_set(xseed_t *xseed, int begQ, int begT, int seedlen);
+int xseed_set(xseed_t *xseed, int begQ, int begT, int seedlen)
+{
+    if (!xseed) return -1;
+
+    xseed->begQ = begQ;
+    xseed->begT = begT;
+    xseed->endQ = begQ + seedlen;
+    xseed->endT = begT + seedlen;
+
+    return 0;
+}
+
 int xseed_check_valid(xseed_t const xseed, xdrop_aligner_t const xalign);
 
 /* typedef struct          */
