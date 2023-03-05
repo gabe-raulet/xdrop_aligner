@@ -1,0 +1,4 @@
+* Replace error codes with asserts for errors that can only
+  be caused by programmer error. Errors that can be caused by
+  the input dataset, or some external problem, should be stay handled
+  with error codes however.
