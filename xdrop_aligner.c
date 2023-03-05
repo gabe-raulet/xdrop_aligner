@@ -35,7 +35,17 @@ int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seq
     return 0;
 }
 
-int xdrop_aligner_clear(xdrop_aligner_t *xalign);
+int xdrop_aligner_clear(xdrop_aligner_t *xalign)
+{
+    if (!xalign) return -1;
+
+    if (xalign->seqQ) free(xalign->seqQ);
+    if (xalign->seqT) free(xalign->seqT);
+
+    memset(xalign, 0, sizeof(xdrop_aligner_t));
+
+    return 0;
+}
 
 /* typedef struct      */
 /* {                   */
