@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+static inline int max(int a, int b) { return a > b? a : b; }
+static inline int min(int a, int b) { return a < b? a : b; }
+
 /* typedef struct           */
 /* {                        */
 /*     int8_t *seqQ, *seqT; */
