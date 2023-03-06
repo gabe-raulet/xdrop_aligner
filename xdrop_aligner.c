@@ -139,11 +139,7 @@ int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int g
     return 0;
 }
 
-typedef struct
-{
-    int tbeg, qbeg, tend, qend;
-    int tbeg_best, qbeg_best, tend_best, qend_best;
-} ext_seed_t;
+typedef struct { int tbeg, qbeg, tend, qend; } ext_seed_t;
 
 int extend_seed_one_direction(const int8_t *target_seq, const int8_t *query_seq, int target_len, int query_len, ext_seed_t *xseed, int extleft, int mat, int mis, int gap, int xdrop)
 {
@@ -289,31 +285,17 @@ int extend_seed_one_direction(const int8_t *target_seq, const int8_t *query_seq,
         }
     }
 
-    if (ext_score != undef)
-    {
-        if (extleft)
-        {
-            xseed->tbeg -= ext_row;
-            xseed->qbeg -= ext_col;
-        }
-        else
-        {
-            xseed->tend += ext_row;
-            xseed->qend += ext_col;
-        }
-    }
-
     if (best_ext_score != undef)
     {
         if (extleft)
         {
-            xseed->tbeg_best -= best_ext_row;
-            xseed->qbeg_best -= best_ext_col;
+            xseed->tbeg -= best_ext_row;
+            xseed->qbeg -= best_ext_col;
         }
         else
         {
-            xseed->tend_best += best_ext_row;
-            xseed->qend_best += best_ext_col;
+            xseed->tend += best_ext_row;
+            xseed->qend += best_ext_col;
         }
     }
 
@@ -355,24 +337,24 @@ int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdr
 
 int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, int begQ, int begT, int endQ, int endT, int *begQ_ext, int *begT_ext)
 {
-    ext_seed_t xseed = {begT, begQ, endT, endQ, begT, begQ, endT, endQ};
+    ext_seed_t xseed = {begT, begQ, endT, endQ};
 
     int lscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, begT, begQ, &xseed, 1, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
-    *begQ_ext = xseed.qbeg_best;
-    *begT_ext = xseed.tbeg_best;
+    *begQ_ext = xseed.qbeg;
+    *begT_ext = xseed.tbeg;
 
     return lscore;
 }
 
 int xdrop_seed_and_extend_r(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, int begQ, int begT, int endQ, int endT, int *endQ_ext, int *endT_ext)
 {
-    ext_seed_t xseed = {begT, begQ, endT, endQ, begT, begQ, endT, endQ};
+    ext_seed_t xseed = {begT, begQ, endT, endQ};
 
     int rscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xalign.lenT - endT, xalign.lenQ - endQ, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
-    *endQ_ext = xseed.qend_best;
-    *endT_ext = xseed.tend_best;
+    *endQ_ext = xseed.qend;
+    *endT_ext = xseed.tend;
 
     return rscore;
 }
