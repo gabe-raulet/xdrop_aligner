@@ -8,7 +8,7 @@
 
 typedef struct
 {
-    int8_t *seqQ, *seqT, *seqTr;
+    int8_t *seqQ, *seqT;
     int lenQ, lenT;
 } xdrop_seq_pair_t;
 
@@ -44,28 +44,8 @@ typedef struct
 int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int gap, int dropoff);
 
 /*
- * alignment functions
+ * alignment function
  */
-
-int
-xdrop_seed_and_extend_l
-(
-    xdrop_seq_pair_t const xalign,
-    xdrop_score_scheme_t const scheme,
-    xseed_t xseed,
-    int *begQ_ext,
-    int *begT_ext
-);
-
-int
-xdrop_seed_and_extend_r
-(
-    xdrop_seq_pair_t const xalign,
-    xdrop_score_scheme_t const scheme,
-    xseed_t xseed,
-    int *endQ_ext,
-    int *endT_ext
-);
 
 int
 xdrop_seed_and_extend
