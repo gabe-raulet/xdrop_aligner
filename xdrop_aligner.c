@@ -134,12 +134,14 @@ int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int g
     return 0;
 }
 
-int extend_seed_one_direction(const int8_t *seqQ, const int8_t *seqT, int lenQ, int lenT, xseed_t *xseed, int extleft, int mat, int mis, int gap, int xdrop)
+int extend_seed_one_direction(xdrop_seq_pair_t const xalign, int lenQ_ext, int lenT_ext, xseed_t *xseed, int extleft, int mat, int mis, int gap, int xdrop)
 {
-    int rows = lenT + 1;
-    int cols = lenQ + 1;
+    int rows = lenT_ext + 1;
+    int cols = lenQ_ext + 1;
 
     if (rows == 1 || cols == 1) return 0;
+
+    int8_t const *seqT = xseed->rc? xalign.seqTr : xalign.seqT;
 
     int len = 2 * max(cols, rows);
     int min_err_score = INT_MIN / len;
@@ -205,7 +207,7 @@ int extend_seed_one_direction(const int8_t *seqQ, const int8_t *seqT, int lenQ, 
             posT = extleft? rows - 1 + col - ad_no : ad_no - col - 1 + offsetT;
 
             int temp = max(ad2.a[i2-1], ad2.a[i2]) + gap;
-            int temp2 = vec_at(ad1, i1-1) + (seqQ[posQ] == seqT[posT]? mat : mis);
+            int temp2 = vec_at(ad1, i1-1) + (xalign.seqQ[posQ] == seqT[posT]? mat : mis);
             temp = max(temp, temp2);
 
             if (temp < best - xdrop)
@@ -326,9 +328,7 @@ int xdrop_seed_and_extend(xdrop_seq_pair_t const xalign, xseed_t const xseed, xd
 
 int xdrop_seed_and_extend_l(xdrop_seq_pair_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *begQ_ext, int *begT_ext)
 {
-    int8_t const *seqT = xseed.rc? xalign.seqTr : xalign.seqT;
-
-    int lscore = extend_seed_one_direction(xalign.seqQ, seqT, xseed.begQ, xseed.begT, &xseed, 1, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
+    int lscore = extend_seed_one_direction(xalign, xseed.begQ, xseed.begT, &xseed, 1, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
     *begQ_ext = xseed.begQ;
     *begT_ext = xseed.begT;
@@ -338,9 +338,7 @@ int xdrop_seed_and_extend_l(xdrop_seq_pair_t const xalign, xdrop_score_scheme_t 
 
 int xdrop_seed_and_extend_r(xdrop_seq_pair_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *endQ_ext, int *endT_ext)
 {
-    int8_t const *seqT = xseed.rc? xalign.seqTr : xalign.seqT;
-
-    int rscore = extend_seed_one_direction(xalign.seqQ, seqT, xalign.lenQ - xseed.endQ, xalign.lenT - xseed.endT, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
+    int rscore = extend_seed_one_direction(xalign, xalign.lenQ - xseed.endQ, xalign.lenT - xseed.endT, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
     *endQ_ext = xseed.endQ;
     *endT_ext = xseed.endT;
