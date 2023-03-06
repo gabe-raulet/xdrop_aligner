@@ -89,32 +89,18 @@ int xseed_set(xseed_t *xseed, xdrop_seq_pair_t const refpair, int begQ, int begT
      */
     int rc = (refpair.seqQ[begQ + (seedlen>>1)] == 3 - refpair.seqT[begT + (seedlen>>1)]);
 
-    int i;
-
-    if (!rc)
+    for (int i = 0; i < seedlen; ++i)
     {
-        for (i = 0; i < seedlen; ++i)
-        {
-            if (refpair.seqQ[begQ + i] != refpair.seqT[begT + i])
-                return -1;
-        }
-
-        xseed->begT = begT;
-    }
-    else
-    {
-        for (i = 0; i < seedlen; ++i)
-        {
-            if (refpair.seqQ[begQ + i] != 3 - refpair.seqT[begT + seedlen - 1 - i])
-                return -1;
-        }
-
-        xseed->begT = refpair.lenT - begT - seedlen;
+        if (refpair.seqQ[begQ + i] != (rc? 3 - refpair.seqT[begT + seedlen - 1 - i] : refpair.seqT[begT + i]))
+            return -1;
     }
 
     xseed->begQ = begQ;
     xseed->endQ = xseed->begQ + seedlen;
+
+    xseed->begT = rc? refpair.lenT - begT - seedlen : begT;
     xseed->endT = xseed->begT + seedlen;
+
     xseed->rc = rc;
 
     return 0;
