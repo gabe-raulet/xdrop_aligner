@@ -23,6 +23,7 @@ typedef struct
 {
     int begQ, endQ;
     int begT, endT;
+    int rc;
 } xseed_t;
 
 int xseed_set(xseed_t *xseed, xdrop_seq_pair_t const refpair, int begQ, int begT, int seedlen);

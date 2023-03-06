@@ -64,12 +64,58 @@ int xdrop_seq_pair_clear(xdrop_seq_pair_t *xalign)
 
 int xseed_set(xseed_t *xseed, xdrop_seq_pair_t const refpair, int begQ, int begT, int seedlen)
 {
-    if (!xseed) return -1;
+    /*
+     * Seedlen must be odd, otherwise we might have reverse complement palindromes.
+     */
+    if (!xseed || !(seedlen&1)) return -1;
+
+    /*
+     * Check that the query sequence coordinates are within the logical bounds.
+     */
+    if (begQ < 0 || begQ + seedlen >= refpair.lenQ)
+        return -1;
+
+    /*
+     * Check that the target sequence coordinates are within the logical bounds.
+     */
+    if (begT < 0 || begT + seedlen >= refpair.lenT)
+        return -1;
+
+    /*
+     * Assuming that the seed coordinates are correct (which we check just after this),
+     * the pairs can be determined to be on opposite strands by simply looking at the
+     * nucleotide right in the middle of the seed on each sequence and seeing whether
+     * the are Watson-Crick complements or not.
+     */
+    int rc = (refpair.seqQ[begQ + (seedlen>>1)] == 3 - refpair.seqT[begT + (seedlen>>1)]);
+
+    int i;
+
+    if (!rc)
+    {
+        for (i = 0; i < seedlen; ++i)
+        {
+            if (refpair.seqQ[begQ + i] != refpair.seqT[begT + i])
+                return -1;
+        }
+
+        xseed->begT = begT;
+    }
+    else
+    {
+        for (i = 0; i < seedlen; ++i)
+        {
+            if (refpair.seqQ[begQ + i] != 3 - refpair.seqT[begT + seedlen - 1 - i])
+                return -1;
+        }
+
+        xseed->begT = refpair.lenT - begT - seedlen;
+    }
 
     xseed->begQ = begQ;
-    xseed->begT = begT;
-    xseed->endQ = begQ + seedlen;
-    xseed->endT = begT + seedlen;
+    xseed->endQ = xseed->begQ + seedlen;
+    xseed->endT = xseed->begT + seedlen;
+    xseed->rc = rc;
 
     return 0;
 }
