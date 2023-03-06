@@ -10,27 +10,14 @@ int main(int argc, char *argv[])
     char const *seqT =   "tggCAAgaccata";
     char const *twin = "tatgggtgTTGcca";
 
-    int err;
-
     xseed_t xseed;
     xdrop_aligner_t xalign;
     xdrop_score_scheme_t scheme;
 
-    err = xdrop_aligner_set(&xalign, seqQ, seqT);
-
-    if (err == -1) err("xdrop_aligner_set");
-
-    err = xseed_set(&xseed, 5, 3, 3);
-
-    if (err == -1) err("xseed_set");
-
-    err = xseed_check_valid(xseed, xalign);
-
-    if (err == -1) err("xseed_check_valid");
-
-    err = xdrop_score_scheme_set(&scheme, 1, -1, -1, 15);
-
-    if (err == -1) err("xdrop_score_scheme_set");
+    assert(xdrop_aligner_set(&xalign, seqQ, seqT) != -1);
+    assert(xseed_set(&xseed, xalign, 5, 3, 3, 0) != -1);
+    assert(xseed_check_valid(xseed, xalign) != -1);
+    assert(xdrop_score_scheme_set(&scheme, 1, -1, -1, 15) != -1);
 
     xseed_t result;
 
@@ -40,9 +27,7 @@ int main(int argc, char *argv[])
 
     printf("%d\t%d\t%d\t%d\t%d\t%d\n", xalign.lenQ, result.begQ, result.endQ, xalign.lenT, result.begT, result.endT);
 
-    err = xdrop_aligner_clear(&xalign);
-
-    if (err == -1) err("xdrop_aligner_clear");
+    assert(xdrop_aligner_clear(&xalign) != -1);
 
     return 0;
 }
