@@ -1,7 +1,10 @@
 #include "xdrop_aligner.h"
 #include "ntlookup.h"
+#include "vec.h"
+#include "usage.h"
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 static inline int max(int a, int b) { return a > b? a : b; }
 static inline int min(int a, int b) { return a < b? a : b; }
@@ -339,14 +342,13 @@ int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdr
 
     int score = lscore + rscore + scheme.mat * seedlen;
 
+    result->begQ = begQ_ext;
+    result->endQ = endQ_ext;
+    result->begT = begT_ext;
+    result->endT = endT_ext;
+
     return score;
 }
-
-typedef struct
-{
-    int tbeg, qbeg, tend, qend;
-    int tbeg_best, qbeg_best, tend_best, qend_best;
-} ext_seed_t;
 
 int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, int begQ, int begT, int endQ, int endT, int *begQ_ext, int *begT_ext)
 {
@@ -366,8 +368,8 @@ int xdrop_seed_and_extend_r(xdrop_aligner_t const xalign, xdrop_score_scheme_t c
 
     int rscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xalign.lenT - endT, xalign.lenQ - endQ, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
-    *begQ_ext = xseed.qbeg_best;
-    *begT_ext = xseed.tbeg_best;
+    *endQ_ext = xseed.qend_best;
+    *endT_ext = xseed.tend_best;
 
     return rscore;
 }
