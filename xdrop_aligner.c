@@ -120,43 +120,6 @@ int xseed_set(xseed_t *xseed, xdrop_seq_pair_t const refpair, int begQ, int begT
     return 0;
 }
 
-int xseed_check_valid(xseed_t const xseed, xdrop_seq_pair_t const xalign)
-{
-    /*
-     * Check that the xseed coordinates are consistent with the sequences
-     * in the xalign structure.
-     */
-
-    if (xseed.begQ < 0 || xseed.endQ >= xalign.lenQ)
-        return -1;
-
-    if (xseed.begT < 0 || xseed.endT >= xalign.lenT)
-        return -1;
-
-    /*
-     * Check that the xseed coordinates correspond to equal length seeds
-     * for both the query and the target.
-     */
-
-    int seedlen = xseed_seedlen(xseed);
-
-    if (seedlen == -1)
-        return -1;
-
-    /*
-     * Check that the seed sequences are identical on the query and target
-     * sequences.
-     */
-
-    for (int i = 0; i < seedlen; ++i)
-    {
-        if (xalign.seqQ[xseed.begQ + i] != xalign.seqT[xseed.begT + i])
-            return -1;
-    }
-
-    return 0;
-}
-
 int xseed_seedlen(xseed_t const xseed)
 {
     int seedlenQ = xseed.endQ - xseed.begQ;

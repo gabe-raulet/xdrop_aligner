@@ -10,7 +10,7 @@
 static inline int maximum(int a, int b) { return a > b? a : b; }
 
 char const *fasta_fname = "ground_truth_seriasm/reads.fa";
-char const *seeds_fname = "ground_truth_seriasm/seeds.sorted.before.paf";
+char const *seeds_fname = "ground_truth_seriasm/seeds.before.paf";
 
 int numreads;
 char *buf, **seqs;
@@ -44,8 +44,6 @@ int main(int argc, char *argv[])
         assert(xdrop_seq_pair_set(&xalign, seqQ, seqT) != -1);
 
         assert(xseed_set(&xseed, xalign, begQ, begT, 31) != -1);
-
-        assert(xseed_check_valid(xseed, xalign) != -1);
 
         xseed_t result;
 

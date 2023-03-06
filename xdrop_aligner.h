@@ -27,7 +27,6 @@ typedef struct
 } xseed_t;
 
 int xseed_set(xseed_t *xseed, xdrop_seq_pair_t const refpair, int begQ, int begT, int seedlen);
-int xseed_check_valid(xseed_t const xseed, xdrop_seq_pair_t const seqpair);
 int xseed_seedlen(xseed_t const xseed);
 
 /*
