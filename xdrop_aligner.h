@@ -47,6 +47,31 @@ int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int g
  * alignment functions
  */
 
-int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *begQ_ext, int *begT_ext);
-int xdrop_seed_and_extend_r(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *endQ_ext, int *endT_ext);
-int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdrop_score_scheme_t const scheme, xseed_t *result);
+int
+xdrop_seed_and_extend_l
+(
+    xdrop_aligner_t const xalign,
+    xdrop_score_scheme_t const scheme,
+    xseed_t xseed,
+    int *begQ_ext,
+    int *begT_ext
+);
+
+int
+xdrop_seed_and_extend_r
+(
+    xdrop_aligner_t const xalign,
+    xdrop_score_scheme_t const scheme,
+    xseed_t xseed,
+    int *endQ_ext,
+    int *endT_ext
+);
+
+int
+xdrop_seed_and_extend
+(
+    xdrop_aligner_t const xalign,
+    xseed_t const xseed,
+    xdrop_score_scheme_t const scheme,
+    xseed_t *result
+);
