@@ -139,9 +139,7 @@ int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int g
     return 0;
 }
 
-typedef struct { int tbeg, qbeg, tend, qend; } ext_seed_t;
-
-int extend_seed_one_direction(const int8_t *target_seq, const int8_t *query_seq, int target_len, int query_len, ext_seed_t *xseed, int extleft, int mat, int mis, int gap, int xdrop)
+int extend_seed_one_direction(const int8_t *target_seq, const int8_t *query_seq, int target_len, int query_len, xseed_t *xseed, int extleft, int mat, int mis, int gap, int xdrop)
 {
     int cols = query_len + 1;
     int rows = target_len + 1;
@@ -173,8 +171,8 @@ int extend_seed_one_direction(const int8_t *target_seq, const int8_t *query_seq,
     ad3.l = 2;
 
     int ad_no = 1, best = 0;
-    int target_offset = xseed->tend;
-    int query_offset = xseed->qend;
+    int target_offset = xseed->endT;
+    int query_offset = xseed->endQ;
 
     while (min_col < max_col)
     {
@@ -289,13 +287,13 @@ int extend_seed_one_direction(const int8_t *target_seq, const int8_t *query_seq,
     {
         if (extleft)
         {
-            xseed->tbeg -= best_ext_row;
-            xseed->qbeg -= best_ext_col;
+            xseed->begT -= best_ext_row;
+            xseed->begQ -= best_ext_col;
         }
         else
         {
-            xseed->tend += best_ext_row;
-            xseed->qend += best_ext_col;
+            xseed->endT += best_ext_row;
+            xseed->endQ += best_ext_col;
         }
     }
 
@@ -314,16 +312,11 @@ int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdr
     if (seedlen == -1)
         return -1;
 
-    int begQ, begT, begQ_ext, begT_ext, lscore;
-    int endQ, endT, endQ_ext, endT_ext, rscore;
+    int begQ_ext, begT_ext, lscore;
+    int endQ_ext, endT_ext, rscore;
 
-    begQ = xseed.begQ;
-    begT = xseed.begT;
-    endQ = xseed.endQ;
-    endT = xseed.endT;
-
-    lscore = xdrop_seed_and_extend_l(xalign, scheme, begQ, begT, endQ, endT, &begQ_ext, &begT_ext);
-    rscore = xdrop_seed_and_extend_r(xalign, scheme, begQ, begT, endQ, endT, &endQ_ext, &endT_ext);
+    lscore = xdrop_seed_and_extend_l(xalign, scheme, xseed, &begQ_ext, &begT_ext);
+    rscore = xdrop_seed_and_extend_r(xalign, scheme, xseed, &endQ_ext, &endT_ext);
 
     int score = lscore + rscore + scheme.mat * seedlen;
 
@@ -335,26 +328,22 @@ int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdr
     return score;
 }
 
-int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, int begQ, int begT, int endQ, int endT, int *begQ_ext, int *begT_ext)
+int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *begQ_ext, int *begT_ext)
 {
-    ext_seed_t xseed = {begT, begQ, endT, endQ};
+    int lscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xseed.begT, xseed.begQ, &xseed, 1, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
-    int lscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, begT, begQ, &xseed, 1, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
-
-    *begQ_ext = xseed.qbeg;
-    *begT_ext = xseed.tbeg;
+    *begQ_ext = xseed.begQ;
+    *begT_ext = xseed.begT;
 
     return lscore;
 }
 
-int xdrop_seed_and_extend_r(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, int begQ, int begT, int endQ, int endT, int *endQ_ext, int *endT_ext)
+int xdrop_seed_and_extend_r(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *endQ_ext, int *endT_ext)
 {
-    ext_seed_t xseed = {begT, begQ, endT, endQ};
+    int rscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xalign.lenT - xseed.endT, xalign.lenQ - xseed.endQ, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
-    int rscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xalign.lenT - endT, xalign.lenQ - endQ, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
-
-    *endQ_ext = xseed.qend;
-    *endT_ext = xseed.tend;
+    *endQ_ext = xseed.endQ;
+    *endT_ext = xseed.endT;
 
     return rscore;
 }
