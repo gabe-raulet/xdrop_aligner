@@ -7,6 +7,8 @@
 #include "xdrop_aligner.h"
 #include "usage.h"
 
+static inline int maximum(int a, int b) { return a > b? a : b; }
+
 char const *fasta_fname = "ground_truth_seriasm/reads.fa";
 char const *seeds_fname = "ground_truth_seriasm/seeds.sorted.before.paf";
 
@@ -19,6 +21,9 @@ int main(int argc, char *argv[])
     numreads = loadseqs(fmap, &buf, &seqs);
     fasta_map_free(fmap);
 
+    xdrop_score_scheme_t scheme;
+    assert(xdrop_score_scheme_set(&scheme, 1, -1, -1, 15) != -1);
+
     FILE *f = fopen(seeds_fname, "r");
 
     int idxQ, lenQ, begQ, endQ, idxT, lenT, begT, endT;
@@ -29,9 +34,31 @@ int main(int argc, char *argv[])
         char *seqT = seqs[idxT-1];
         int lenQ_chk = strlen(seqQ);
         int lenT_chk = strlen(seqT);
-
         assert(lenQ_chk == lenQ);
         assert(lenT_chk == lenT);
+
+        xseed_t xseed;
+        xdrop_aligner_t xalign;
+
+        assert(xdrop_aligner_set(&xalign, seqQ, seqT) != -1);
+
+        assert(xseed_set(&xseed, begQ, begT, 31) != -1);
+
+        assert(xseed_check_valid(xseed, xalign) != -1);
+
+        xseed_t result;
+
+        int score = xdrop_seed_and_extend(xalign, xseed, scheme, &result);
+
+        assert(score != -1);
+
+        int maplen = maximum(result.endT - result.begT, result.endQ - result.begQ);
+
+        printf("%d\t%d\t%d\t%d\t+\t%d\t%d\t%d\t%d\t%d\t%d\t255\tAFTER\n", idxQ, xalign.lenQ, result.begQ, result.endQ,
+                                                                          idxT, xalign.lenT, result.begT, result.endT, score, maplen);
+
+        assert(xdrop_aligner_clear(&xalign) != -1);
+
     }
 
     fclose(f);
