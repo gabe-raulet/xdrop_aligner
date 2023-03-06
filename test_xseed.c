@@ -38,11 +38,12 @@ int main(int argc, char *argv[])
         assert(lenT_chk == lenT);
 
         xseed_t xseed;
-        xdrop_aligner_t xalign;
+        xdrop_seq_pair_t xalign;
+        int rc;
 
-        assert(xdrop_aligner_set(&xalign, seqQ, seqT) != -1);
+        assert(xdrop_seq_pair_set(&xalign, seqQ, seqT) != -1);
 
-        assert(xseed_set(&xseed, begQ, begT, 31) != -1);
+        assert(xseed_set(&xseed, xalign, begQ, begT, 31) != -1);
 
         assert(xseed_check_valid(xseed, xalign) != -1);
 
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
         printf("%d\t%d\t%d\t%d\t+\t%d\t%d\t%d\t%d\t%d\t%d\t255\tAFTER\n", idxQ, xalign.lenQ, result.begQ, result.endQ,
                                                                           idxT, xalign.lenT, result.begT, result.endT, score, maplen);
 
-        assert(xdrop_aligner_clear(&xalign) != -1);
+        assert(xdrop_seq_pair_clear(&xalign) != -1);
 
     }
 

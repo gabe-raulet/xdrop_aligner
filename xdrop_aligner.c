@@ -13,9 +13,9 @@ static inline int min(int a, int b) { return a < b? a : b; }
 /* {                        */
 /*     int8_t *seqQ, *seqT; */
 /*     int lenQ, lenT;      */
-/* } xdrop_aligner_t;       */
+/* } xdrop_seq_pair_t;       */
 
-int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seqT)
+int xdrop_seq_pair_set(xdrop_seq_pair_t *xalign, char const *seqQ, char const *seqT)
 {
     if (!xalign || !seqQ || !seqT)
         return -1;
@@ -43,7 +43,7 @@ int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seq
     return 0;
 }
 
-int xdrop_aligner_clear(xdrop_aligner_t *xalign)
+int xdrop_seq_pair_clear(xdrop_seq_pair_t *xalign)
 {
     if (!xalign) return -1;
 
@@ -51,7 +51,7 @@ int xdrop_aligner_clear(xdrop_aligner_t *xalign)
     if (xalign->seqT) free(xalign->seqT);
     if (xalign->seqTr) free(xalign->seqTr);
 
-    memset(xalign, 0, sizeof(xdrop_aligner_t));
+    memset(xalign, 0, sizeof(xdrop_seq_pair_t));
 
     return 0;
 }
@@ -62,7 +62,7 @@ int xdrop_aligner_clear(xdrop_aligner_t *xalign)
 /*     int begT, endT; */
 /* } xseed_t;          */
 
-int xseed_set(xseed_t *xseed, int begQ, int begT, int seedlen)
+int xseed_set(xseed_t *xseed, xdrop_seq_pair_t const refpair, int begQ, int begT, int seedlen)
 {
     if (!xseed) return -1;
 
@@ -74,7 +74,7 @@ int xseed_set(xseed_t *xseed, int begQ, int begT, int seedlen)
     return 0;
 }
 
-int xseed_check_valid(xseed_t const xseed, xdrop_aligner_t const xalign)
+int xseed_check_valid(xseed_t const xseed, xdrop_seq_pair_t const xalign)
 {
     /*
      * Check that the xseed coordinates are consistent with the sequences
@@ -305,7 +305,7 @@ int extend_seed_one_direction(const int8_t *target_seq, const int8_t *query_seq,
 }
 
 
-int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdrop_score_scheme_t const scheme, xseed_t *result)
+int xdrop_seed_and_extend(xdrop_seq_pair_t const xalign, xseed_t const xseed, xdrop_score_scheme_t const scheme, xseed_t *result)
 {
     int seedlen = xseed_seedlen(xseed);
 
@@ -328,7 +328,7 @@ int xdrop_seed_and_extend(xdrop_aligner_t const xalign, xseed_t const xseed, xdr
     return score;
 }
 
-int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *begQ_ext, int *begT_ext)
+int xdrop_seed_and_extend_l(xdrop_seq_pair_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *begQ_ext, int *begT_ext)
 {
     int lscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xseed.begT, xseed.begQ, &xseed, 1, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
@@ -338,7 +338,7 @@ int xdrop_seed_and_extend_l(xdrop_aligner_t const xalign, xdrop_score_scheme_t c
     return lscore;
 }
 
-int xdrop_seed_and_extend_r(xdrop_aligner_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *endQ_ext, int *endT_ext)
+int xdrop_seed_and_extend_r(xdrop_seq_pair_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *endQ_ext, int *endT_ext)
 {
     int rscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xalign.lenT - xseed.endT, xalign.lenQ - xseed.endQ, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 

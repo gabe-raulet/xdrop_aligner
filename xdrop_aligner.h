@@ -3,17 +3,17 @@
 #include <stdint.h>
 
 /*
- * xdrop aligner structure and functions
+ * xdrop sequence pair structure and functions
  */
 
 typedef struct
 {
     int8_t *seqQ, *seqT, *seqTr;
     int lenQ, lenT;
-} xdrop_aligner_t;
+} xdrop_seq_pair_t;
 
-int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seqT);
-int xdrop_aligner_clear(xdrop_aligner_t *xalign);
+int xdrop_seq_pair_set(xdrop_seq_pair_t *xalign, char const *seqQ, char const *seqT);
+int xdrop_seq_pair_clear(xdrop_seq_pair_t *xalign);
 
 /*
  * seed structure and functions
@@ -25,8 +25,8 @@ typedef struct
     int begT, endT;
 } xseed_t;
 
-int xseed_set(xseed_t *xseed, int begQ, int begT, int seedlen);
-int xseed_check_valid(xseed_t const xseed, xdrop_aligner_t const xalign);
+int xseed_set(xseed_t *xseed, xdrop_seq_pair_t const refpair, int begQ, int begT, int seedlen);
+int xseed_check_valid(xseed_t const xseed, xdrop_seq_pair_t const seqpair);
 int xseed_seedlen(xseed_t const xseed);
 
 /*
@@ -50,7 +50,7 @@ int xdrop_score_scheme_set(xdrop_score_scheme_t *scheme, int mat, int mis, int g
 int
 xdrop_seed_and_extend_l
 (
-    xdrop_aligner_t const xalign,
+    xdrop_seq_pair_t const xalign,
     xdrop_score_scheme_t const scheme,
     xseed_t xseed,
     int *begQ_ext,
@@ -60,7 +60,7 @@ xdrop_seed_and_extend_l
 int
 xdrop_seed_and_extend_r
 (
-    xdrop_aligner_t const xalign,
+    xdrop_seq_pair_t const xalign,
     xdrop_score_scheme_t const scheme,
     xseed_t xseed,
     int *endQ_ext,
@@ -70,7 +70,7 @@ xdrop_seed_and_extend_r
 int
 xdrop_seed_and_extend
 (
-    xdrop_aligner_t const xalign,
+    xdrop_seq_pair_t const xalign,
     xseed_t const xseed,
     xdrop_score_scheme_t const scheme,
     xseed_t *result
