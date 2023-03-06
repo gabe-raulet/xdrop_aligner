@@ -317,15 +317,18 @@ int xdrop_seed_and_extend(xdrop_seq_pair_t const xalign, xseed_t const xseed, xd
 
     result->begQ = begQ_ext;
     result->endQ = endQ_ext;
-    result->begT = begT_ext;
-    result->endT = endT_ext;
+
+    result->begT = xseed.rc? xalign.lenT - endT_ext : begT_ext;
+    result->endT = xseed.rc? xalign.lenT - begT_ext : endT_ext;
 
     return score;
 }
 
 int xdrop_seed_and_extend_l(xdrop_seq_pair_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *begQ_ext, int *begT_ext)
 {
-    int lscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xseed.begT, xseed.begQ, &xseed, 1, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
+    int8_t const *seqT = xseed.rc? xalign.seqTr : xalign.seqT;
+
+    int lscore = extend_seed_one_direction(seqT, xalign.seqQ, xseed.begT, xseed.begQ, &xseed, 1, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
     *begQ_ext = xseed.begQ;
     *begT_ext = xseed.begT;
@@ -335,7 +338,9 @@ int xdrop_seed_and_extend_l(xdrop_seq_pair_t const xalign, xdrop_score_scheme_t 
 
 int xdrop_seed_and_extend_r(xdrop_seq_pair_t const xalign, xdrop_score_scheme_t const scheme, xseed_t xseed, int *endQ_ext, int *endT_ext)
 {
-    int rscore = extend_seed_one_direction(xalign.seqT, xalign.seqQ, xalign.lenT - xseed.endT, xalign.lenQ - xseed.endQ, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
+    int8_t const *seqT = xseed.rc? xalign.seqTr : xalign.seqT;
+
+    int rscore = extend_seed_one_direction(seqT, xalign.seqQ, xalign.lenT - xseed.endT, xalign.lenQ - xseed.endQ, &xseed, 0, scheme.mat, scheme.mis, scheme.gap, scheme.dropoff);
 
     *endQ_ext = xseed.endQ;
     *endT_ext = xseed.endT;

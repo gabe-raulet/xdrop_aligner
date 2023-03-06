@@ -10,7 +10,7 @@
 static inline int maximum(int a, int b) { return a > b? a : b; }
 
 char const *fasta_fname = "ground_truth_seriasm/reads.fa";
-char const *seeds_fname = "ground_truth_seriasm/seeds.before.paf";
+char const *seeds_fname = "ground_truth_seriasm/seeds.rc.before.paf";
 
 int numreads;
 char *buf, **seqs;
@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
 
         int maplen = maximum(result.endT - result.begT, result.endQ - result.begQ);
 
-        printf("%d\t%d\t%d\t%d\t+\t%d\t%d\t%d\t%d\t%d\t%d\t255\tAFTER\n", idxQ, xalign.lenQ, result.begQ, result.endQ,
-                                                                          idxT, xalign.lenT, result.begT, result.endT, score, maplen);
+        printf("%d\t%d\t%d\t%d\t%c\t%d\t%d\t%d\t%d\t%d\t%d\t255\tAFTER\n", idxQ, xalign.lenQ, result.begQ, result.endQ, "+-"[xseed.rc],
+                                                                           idxT, xalign.lenT, result.begT, result.endT, score, maplen);
 
         assert(xdrop_seq_pair_clear(&xalign) != -1);
 
