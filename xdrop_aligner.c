@@ -25,6 +25,7 @@ int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seq
 
     xalign->seqQ = malloc(xalign->lenQ);
     xalign->seqT = malloc(xalign->lenT);
+    xalign->seqTr = malloc(xalign->lenT);
 
     int i;
 
@@ -36,6 +37,7 @@ int xdrop_aligner_set(xdrop_aligner_t *xalign, char const *seqQ, char const *seq
     for (i = 0; i < xalign->lenT; ++i)
     {
         xalign->seqT[i] = NT_LOOKUP_CODE(seqT[i]);
+        xalign->seqTr[xalign->lenT - 1 - i] = 3 - xalign->seqT[i];
     }
 
     return 0;
@@ -47,6 +49,7 @@ int xdrop_aligner_clear(xdrop_aligner_t *xalign)
 
     if (xalign->seqQ) free(xalign->seqQ);
     if (xalign->seqT) free(xalign->seqT);
+    if (xalign->seqTr) free(xalign->seqTr);
 
     memset(xalign, 0, sizeof(xdrop_aligner_t));
 

@@ -8,7 +8,7 @@
 
 typedef struct
 {
-    int8_t *seqQ, *seqT;
+    int8_t *seqQ, *seqT, *seqTr;
     int lenQ, lenT;
 } xdrop_aligner_t;
 
