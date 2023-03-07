@@ -7,7 +7,11 @@
 #include "xdrop_aligner.h"
 #include "usage.h"
 
-static inline int maximum(int a, int b) { return a > b? a : b; }
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
+/* static inline int max(int a, int b) { return a > b? a : b; } */
+/* static inline int min(int a, int b) { return a < b? a : b; } */
 
 int numreads;
 char *buf, **seqs;
@@ -40,6 +44,8 @@ int main(int argc, char *argv[])
 
         assert(xdrop_seq_pair_set(&xalign, seqQ, seqT) != -1);
 
+        char classification[128];
+
         for (int cnt = 0; cnt < 2; ++cnt)
         {
             if (begQs[cnt] == 0 || begTs[cnt] == 0)
@@ -52,25 +58,36 @@ int main(int argc, char *argv[])
 
             assert(score != -1);
 
-            int maplen = maximum(result.endT - result.begT, result.endQ - result.begQ);
 
-            printf("%d\t%d\t%d\t%d\t%c\t%d\t%d\t%d\t%d\t%d\t%d\n", idxQ, xalign.lenQ, result.begQ, result.endQ, "+-"[xseed.rc], idxT, xalign.lenT, result.begT, result.endT, score, maplen);
+            int begTr = xseed.rc? xalign.lenT - result.endT : result.begT;
+            int endTr = xseed.rc? xalign.lenT - result.begT : result.endT;
+
+            int maplen = max(result.endT - result.begT, result.endQ - result.begQ);
+            int overhang  = min(result.begQ, begTr) + min(xalign.lenQ - result.endQ, xalign.lenT - result.endT);
+
+            if (overhang > min(1000, maplen * 0.8))
+            {
+                sprintf(classification, "internal_match");
+            }
+            else if (result.begQ <= begTr && xalign.lenQ - result.endQ <= xalign.lenT - endTr)
+            {
+                sprintf(classification, "first_contained");
+            }
+            else if (result.begQ >= begTr && xalign.lenQ - result.endQ >= xalign.lenT - endTr)
+            {
+                sprintf(classification, "second_contained");
+            }
+            else if (result.begQ > result.begT)
+            {
+                sprintf(classification, "first_to_second_overlap");
+            }
+            else
+            {
+                sprintf(classification, "second_to_first_overlap");
+            }
+
+            printf("%d\t%d\t%d\t%d\t%c\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n", idxQ, xalign.lenQ, result.begQ, result.endQ, "+-"[xseed.rc], idxT, xalign.lenT, result.begT, result.endT, score, maplen, classification);
         }
-
-        /* int err = xseed_set(&xseed, xalign, begQ2, begT2, 31);                                                                                                                           */
-
-        /* if (err == -1)                                                                                                                                                                   */
-        /* {                                                                                                                                                                                */
-        /*     printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", idxQ, xalign.lenQ, result.begQ, result.endQ,  idxT, xalign.lenT, result.begT, result.endT);                                       */
-        /*     exit(-1);                                                                                                                                                                    */
-        /* }                                                                                                                                                                                */
-
-        /* score = xdrop_seed_and_extend(xalign, xseed, scheme, &result);                                                                                                                   */
-        /* assert(score != -1);                                                                                                                                                             */
-
-        /* maplen = maximum(result.endT - result.begT, result.endQ - result.begQ);                                                                                                          */
-
-        /* printf("%d\t%d\t%d\t%d\t%c\t%d\t%d\t%d\t%d\t%d\t%d\n", idxQ, xalign.lenQ, result.begQ, result.endQ, "+-"[xseed.rc], idxT, xalign.lenT, result.begT, result.endT, score, maplen); */
 
         assert(xdrop_seq_pair_clear(&xalign) != -1);
     }
