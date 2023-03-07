@@ -69,13 +69,13 @@ int xseed_set(xseed_t *xseed, xdrop_seq_pair_t const refpair, int begQ, int begT
     /*
      * Check that the query sequence coordinates are within the logical bounds.
      */
-    if (begQ < 0 || begQ + seedlen >= refpair.lenQ)
+    if (begQ < 0 || begQ + seedlen > refpair.lenQ)
         return -1;
 
     /*
      * Check that the target sequence coordinates are within the logical bounds.
      */
-    if (begT < 0 || begT + seedlen >= refpair.lenT)
+    if (begT < 0 || begT + seedlen > refpair.lenT)
         return -1;
 
     /*
