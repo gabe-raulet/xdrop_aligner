@@ -13,7 +13,9 @@ typedef struct
 } xdrop_seq_pair_t;
 
 int xdrop_seq_pair_set(xdrop_seq_pair_t *xalign, char const *seqQ, char const *seqT);
+int xdrop_seq_pair_set_ptrs(xdrop_seq_pair_t *xalign, int8_t const *seqQ, int8_t const *seqT, int lenQ, int lenT);
 int xdrop_seq_pair_clear(xdrop_seq_pair_t *xalign);
+int xdrop_seq_pair_clear_ptrs(xdrop_seq_pair_t *xalign);
 
 /*
  * seed structure and functions

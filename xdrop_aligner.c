@@ -41,12 +41,36 @@ int xdrop_seq_pair_set(xdrop_seq_pair_t *xalign, char const *seqQ, char const *s
     return 0;
 }
 
+int xdrop_seq_pair_set_ptrs(xdrop_seq_pair_t *xalign, int8_t const *seqQ, int8_t const *seqT, int lenQ, int lenT)
+{
+    if (!xalign || !seqQ || !seqT)
+        return -1;
+
+    xalign->lenQ = lenQ;
+    xalign->lenT = lenT;
+    xalign->seqQ = (int8_t *)seqQ;
+    xalign->seqT = (int8_t *)seqT;
+
+    return 0;
+}
+
 int xdrop_seq_pair_clear(xdrop_seq_pair_t *xalign)
 {
     if (!xalign) return -1;
 
     if (xalign->seqQ) free(xalign->seqQ);
     if (xalign->seqT) free(xalign->seqT);
+
+    memset(xalign, 0, sizeof(xdrop_seq_pair_t));
+
+    return 0;
+}
+
+int xdrop_seq_pair_clear_ptrs(xdrop_seq_pair_t *xalign)
+{
+    if (!xalign) return -1;
+
+    xalign->seqQ = xalign->seqT = NULL;
 
     memset(xalign, 0, sizeof(xdrop_seq_pair_t));
 

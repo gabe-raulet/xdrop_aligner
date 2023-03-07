@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "fasta_map.h"
 #include "xdrop_aligner.h"
+#include "ntlookup.h"
 #include "usage.h"
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
@@ -15,12 +16,45 @@
 
 int numreads;
 char *buf, **seqs;
+int *seq_lengths;
+int8_t *bufi, **seqsi;
 
 int main(int argc, char *argv[])
 {
     fasta_map_t fmap = fasta_map_create("reads.fa");
     numreads = loadseqs(fmap, &buf, &seqs);
+
+    seq_lengths = malloc(numreads * sizeof(int));
+
+    int totbases = 0;
+
+    for (size_t i = 0; i < (size_t)numreads; ++i)
+    {
+        size_t len;
+        fasta_map_query_seq_length_by_id(fmap, i, &len);
+        seq_lengths[i] = (int)len;
+        totbases += len;
+    }
+
     fasta_map_free(fmap);
+
+    bufi = malloc(totbases);
+    seqsi = malloc(numreads * sizeof(int8_t*));
+
+    int8_t *offset = bufi;
+
+    for (size_t i = 0; i < (size_t)numreads; ++i)
+    {
+        for (int j = 0; j < seq_lengths[i]; ++j)
+        {
+            offset[j] = NT_LOOKUP_CODE(seqs[i][j]);
+        }
+        seqsi[i] = offset;
+        offset += seq_lengths[i];
+    }
+
+    free(seqs);
+    free(buf);
 
     xdrop_score_scheme_t scheme;
     assert(xdrop_score_scheme_set(&scheme, 1, -1, -1, 15) != -1);
@@ -35,14 +69,11 @@ int main(int argc, char *argv[])
 
         idxQ--, idxT--;
 
-        char *seqQ = seqs[idxQ];
-        char *seqT = seqs[idxT];
-
         int rc;
         xseed_t xseed, result;
         xdrop_seq_pair_t xalign;
 
-        assert(xdrop_seq_pair_set(&xalign, seqQ, seqT) != -1);
+        assert(xdrop_seq_pair_set_ptrs(&xalign, seqsi[idxQ], seqsi[idxT], seq_lengths[idxQ], seq_lengths[idxT]) != -1);
 
         char classification[128];
 
@@ -89,12 +120,12 @@ int main(int argc, char *argv[])
             printf("%d\t%d\t%d\t%d\t%c\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n", idxQ, xalign.lenQ, result.begQ, result.endQ, "+-"[xseed.rc], idxT, xalign.lenT, result.begT, result.endT, score, maplen, classification);
         }
 
-        assert(xdrop_seq_pair_clear(&xalign) != -1);
+        assert(xdrop_seq_pair_clear_ptrs(&xalign) != -1);
     }
 
     fclose(f);
-    free(seqs);
-    free(buf);
+    free(seqsi);
+    free(bufi);
 
     return 0;
 }
